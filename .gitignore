@@ -1,0 +1,28 @@
+# Local credentials and environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/i
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Test and tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Local LangGraph threads, checkpoints, and store
+.langgraph_api/
+
+# macOS metadata
+.DS_Store

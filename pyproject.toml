@@ -1,0 +1,37 @@
+[project]
+name = "module-3-examples"
+version = "0.0.1"
+description = "Module 3 lesson graphs for LangGraph Studio."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain[mcp]>=1.4.0",
+    "langchain-openai>=1.6.7",
+    "langchain-tavily>=0.2.0",
+    "langgraph>=1.0.0",
+    "pydantic>=2.0",
+    "python-dotenv>=1.0.1",
+]
+
+[build-system]
+requires = ["setuptools>=83.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["lessons"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "D", "D401", "UP"]
+# D100: missing docstring in public module
+# T201: print found
+ignore = ["E501", "D100", "T201"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[dependency-groups]
+dev = [
+    "langgraph-cli[inmem]>=0.4.14",
+    "ruff>=0.8.2",
+]
