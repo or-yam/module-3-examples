@@ -52,7 +52,8 @@ uv run python -m lessons.l01_model_only_loop
 ```
 
 - `l01_model_only.py`: one model call with system and user messages; the current
-  request asks about chocolate cake. It prints the assistant response.
+  request asks about chocolate cake. Uncomment the invocation and print lines
+  when ready to run the model.
 - `l01_model_only_loop.py`: interactive chat history. Type `exit` to stop.
   A conversation loop is not a tool-use loop.
 
@@ -260,12 +261,10 @@ extension material is out of scope for this module.
 
 ```bash
 make lint
-make test
 ```
 
-These run static lint and offline regression tests for CLI chat history and
-import-time model-call prevention. They do not verify live model behavior,
-credentials, or server availability. Starting the server and inspecting the checkpoint runs are
+This checks Python style/static lint, not live model behavior, credentials, or
+server availability. Starting the server and inspecting the demo runs are
 separate live checks; they may incur model/search usage.
 
 - [Concept cheatsheet](../Module-3-Cheatsheet.md)

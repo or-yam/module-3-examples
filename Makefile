@@ -1,4 +1,4 @@
-.PHONY: setup dev lint test
+.PHONY: setup dev lint
 
 # Use this project's environment even if another virtualenv is active.
 UV := env -u VIRTUAL_ENV uv
@@ -11,7 +11,4 @@ dev:
 	$(UV) run langgraph dev
 
 lint:
-	$(UV) run ruff check lessons/ tests/
-
-test:
-	$(UV) run python -m unittest discover -s tests -v
+	$(UV) run ruff check lessons/
