@@ -2,8 +2,8 @@
 
 Prepared Python examples for Tikal's Agentic Engineer Program. Model calls use
 the shared LiteLLM proxy. Learn the mechanics, run small experiments, and inspect
-the artifacts—not just the final answer. Hands-on work is interleaved through
-both sessions; Scout integration happens in the separate `tech-pioneer` repo.
+the artifacts—not just the final answer. Session 1 uses instructor demos; session 2
+includes the MCP warm-up and hands-on Scout work in the separate `tech-pioneer` repo.
 
 ## Setup and run
 
@@ -32,11 +32,15 @@ at import time, and the Tavily lesson requires its key to load. Have both keys
 configured even if you initially select only the weather graph. Tavily searches
 use your account's quota.
 
-**Current demo limitation:** `l04_structured_output.py` also invokes the model and
-prints an invented-weather result while the module loads. Server startup can
-therefore make a model request, incur usage, or fail before you invoke a graph.
-That output isn't a live weather lookup or the result of a later Studio message.
-Use supplied facts for the structured-output exercise below.
+Graph imports construct clients but do not invoke models or search tools. Lesson 4
+also has an explicit CLI demo using supplied weather facts:
+
+```bash
+uv run python -m lessons.l04_structured_output
+```
+
+It prints the validated report and reads its `temperature_c` attribute. This is
+not a live weather lookup.
 
 ## What actually exists
 
@@ -87,8 +91,9 @@ Inspect the assistant's `get_weather` request, the `city` argument, the matching
 tool result, and the subsequent assistant response. The application executes the
 function; the model only requests it.
 
-The tool returns a fixed simulated value and sleeps for three seconds. That is
-demo latency, not model thinking or a real weather API call. Its plain `@tool`
+The tool describes its output as simulated, returns a fixed value, and sleeps
+for three seconds. That is demo latency, not model thinking or a real weather
+API call. Its plain `@tool`
 doesn't parse `Args` text into per-field descriptions by default; the slides show
 an improved teaching variant with `@tool(parse_docstring=True)` and no sleep.
 The Python `-> str` annotation is not automatically a model-facing output schema.
@@ -170,8 +175,11 @@ port, or arithmetic API key is needed; the model still uses LiteLLM.
 
 Identify the host, client, server, and transport. Follow discovery → selected
 tool/arguments → observation → response. The answer `579` alone is not proof of
-tool use. Students consume this server; authoring a production MCP server isn't
-required for Scout. Scout later consumes GitHub's hosted read-only MCP server.
+tool use. The server uses `FastMCP("Calculator")`, one
+`@mcp.tool`, and `mcp.run(transport="stdio")`: read it so the protocol isn't magic.
+Authoring a production MCP server isn't required for Scout; `MCPAdapter` picks
+the transport from the target (script path, http URL, or in-process instance).
+Scout later consumes GitHub's hosted read-only MCP server.
 
 ## Hands-on checkpoints
 
@@ -180,16 +188,18 @@ agents may help implement changes, but each checkpoint requires an explanation
 and an observable artifact. Don't overwrite supplied lesson files just to match
 the slide variants.
 
-| Checkpoint   | Task                                                                                 | Completion artifact                                                                                                 |
-| ------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| 1 — Prompt   | Keep one request fixed; change one role/purpose, rule/boundary, or style instruction | Before/after responses and the exact changed instruction                                                            |
-| 2 — Tool     | Invoke weather directly, inspect its definition, then run the agent                  | Name + args, matched tool result, next response; identify who executed the code                                     |
-| 3 — Contract | Supply weather facts and inspect the typed result                                    | Named fields/types and an explanation of what validation cannot prove                                               |
-| 3b — Design  | Decide tool vs application code for one Scout capability; draft its contract         | Name, description, inputs, returned data, failure behavior, and boundary rationale; no code required                |
-| 4a — MCP     | Run the prepared calculator through the client                                       | Discovered tool, call with inputs, result; identify host/client/server/transport                                    |
-| 4b — Scout   | Complete the module in `tech-pioneer`                                                | App submission, sourced Scout finding, observable run, honest missing-source/failure example, mocked-stage boundary |
+| Checkpoint | Task                                                                       | Completion artifact                                                                                                 |
+| ---------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1 — MCP    | Warm-up: run the prepared calculator through the client                    | Discovered tool, call with inputs, result; identify host/client/server/transport                                    |
+| 2 — Scout  | In `tech-pioneer`: prompt, direct tools, agent wiring, result contract     | Instruction diff + two runs, exposed tool list, one validated `ScoutResearchResult` and the rule it enforced        |
+| 3 — MCP    | In `tech-pioneer`: wire the GitHub read-only MCP server into Scout          | Tool list you exposed, one repository call traced to its evidence record, one honest missing-source path            |
+| 4 — App    | In `tech-pioneer`: submit through the app end to end                       | App submission, sourced Scout finding → evidence, honest failure, mocked-stage boundary                             |
 
-For checkpoint 1, a suitable coding-agent request is:
+Session 1 has no student checkpoints: the prompt change, tool round trip, and
+structured-output demos are instructor-run. Checkpoint 1 is a warm-up in this
+repo; checkpoints 2–4 are the project gates, all in `tech-pioneer`.
+
+For Demo 1 (instructor), a suitable coding-agent request is:
 
 ```text
 Create a scratch model-only example using lessons.shared.get_llm, with the same
@@ -198,19 +208,27 @@ responses and changed instruction. Do not modify the prepared lessons, add a
 framework, or call a weather API. Explain what the difference does and does not prove.
 ```
 
+For checkpoint 2, the same idea runs against the project:
+
+```text
+In tech-pioneer, change one instruction in pioneer_pipeline/scout/prompts/system.py.
+Run Scout twice with the same request and show me both results side by side.
+Print the prompt section you changed. Do not touch routes, the request schema, or
+downstream stages.
+```
+
 One example is not a statistical evaluation. Review actual results, including
 unexpected or unchanged behavior; don't invent a successful demonstration.
 
 ## Inspection and execution boundaries
 
-- **Studio:** inspect a run's messages, tool calls, observations, state, and
+- **LangGraph UI:** inspect a run's messages, tool calls, observations, state, and
   structured response. A model/tool graph is not a multi-agent graph.
-- **LangFuse:** separate instrumentation for tracing/monitoring across runs.
-  This repo currently neither installs nor wires LangFuse. Don't claim trace
-  delivery just because Studio works. Baseline Scout tracing is a course goal,
-  not a demonstrated feature of these lessons.
-- **Traces aren't hidden reasoning:** inspect decisions/actions and their
-  evidence, not private chain-of-thought. A trace alone doesn't prove correctness.
+- **Cross-run tracing:** a later module. This repo doesn't install a tracing
+  platform; the LangGraph UI is the inspection surface. Don't claim trace
+  delivery just because the UI works.
+- **Run artifacts aren't hidden reasoning:** inspect decisions/actions and their
+  evidence, not private chain-of-thought. One run doesn't prove correctness.
 - **Safety isn't a prompt promise:** enforce permissions/approvals at execution
   boundaries. Bound steps/tool calls, per-call timeouts, total duration, retries,
   and cancellation. These lessons don't demonstrate a complete production policy.
@@ -219,31 +237,41 @@ unexpected or unchanged behavior; don't invent a successful demonstration.
 
 ## Teaching order
 
-1. Model-only messages, then system-prompt anatomy and checkpoint 1.
-2. Tool metadata vs implementation; direct invocation; one explicit round trip.
-3. `create_agent`, runtime/harness boundaries, limits; checkpoint 2.
-4. Response schema → matching output → typed consumer; checkpoint 3.
-5. Tavily and observable execution with real external evidence.
-6. MCP motivation and the prepared calculator; checkpoint 4a.
-7. GitHub, security/failure boundaries, and Scout app integration; checkpoint 4b.
+Session 1 (instructor demos, no exercises):
 
-Use prepared demos, not prolonged live coding. Pause for guided practice in both
-sessions. Keep a clearly labelled captured-run fallback for external-service
-failures. Protocol-history/extension material is optional, not a prerequisite.
+1. Model-only messages, the agent loop, and the anatomy map.
+2. System-prompt anatomy, then Demo 1 (one instruction changed).
+3. Tool metadata vs implementation, direct invocation, one explicit round trip.
+4. `create_agent` and the run in the LangGraph UI, then Demo 2.
+5. Response schema → matching output → typed consumer, then Demo 3.
+6. Tavily and real external evidence; harness and runtime limits.
+
+Session 2 (learners build in `tech-pioneer`):
+
+7. MCP motivation, host/client/server, discovery, stateless requests; checkpoint 1.
+8. GitHub server, auth, guidance vs enforcement, honest failure.
+9. Scout Agent Preview, then the implementation block; checkpoints 2, 3, 4.
+
+Use prepared demos, not prolonged live coding. Keep a clearly labelled
+captured-run fallback for external-service failures. Protocol-history and
+extension material is out of scope for this module.
 
 ## Checks and references
 
 ```bash
 make lint
+make test
 ```
 
-This checks Python style/static lint, not live model behavior, credentials, or
-server availability. Starting the server and inspecting the checkpoint runs are
+These run static lint and offline regression tests for CLI chat history and
+import-time model-call prevention. They do not verify live model behavior,
+credentials, or server availability. Starting the server and inspecting the checkpoint runs are
 separate live checks; they may incur model/search usage.
 
 - [Concept cheatsheet](../Module-3-Cheatsheet.md)
 - [Project setup](../Module-3-Setup.md)
 - [Slides and rehearsal notes](../slides/README.md)
 - [LangChain tools](https://docs.langchain.com/oss/python/langchain/tools)
+- [LangChain MCP integration](https://docs.langchain.com/oss/python/langchain/mcp)
 - [Structured output](https://docs.langchain.com/oss/python/langchain/structured-output)
 - [MCP specification](https://modelcontextprotocol.io/specification/2026-07-28)

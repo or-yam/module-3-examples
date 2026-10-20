@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 .venv/
-venv/i
+venv/
 
 # Python generated files
 __pycache__/

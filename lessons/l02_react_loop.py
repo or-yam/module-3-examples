@@ -8,7 +8,7 @@ from lessons.shared import get_llm
 
 @tool
 def get_weather(city: str) -> str:
-    """Get the current weather for a city.
+    """Return simulated weather for a city; this is not a live weather lookup.
 
     Args:
         city: The city name, e.g. "Lisbon".

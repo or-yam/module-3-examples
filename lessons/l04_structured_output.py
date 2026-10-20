@@ -22,11 +22,20 @@ agent = create_agent(
     response_format=ProviderStrategy(WeatherReport),
 )
 
-res = agent.invoke(
-    {"messages": [{"role": "user", "content": "תמציא לי מזג אוויר בתל אביב"}]}
-)
-
-
-print(res)
-
 graph = agent
+
+
+if __name__ == "__main__":
+    result = graph.invoke(
+        {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Lisbon is sunny and 22°C. Outdoor work is comfortable. Return a weather report.",
+                }
+            ]
+        }
+    )
+    report = result["structured_response"]
+    print(report.model_dump_json(indent=2))
+    print(f"Temperature: {report.temperature_c}°C")

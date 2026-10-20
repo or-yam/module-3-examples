@@ -1,9 +1,6 @@
 {
   "$schema": "https://langgra.ph/schema.json",
   "dependencies": ["."],
-  "agents": {
-    "l02-react-loop": "./lessons/l02_react_loop.py:agent"
-  },
   "graphs": {
     "l02-react-loop": "./lessons/l02_react_loop.py:graph",
     "l04-structured-output": "./lessons/l04_structured_output.py:graph",
